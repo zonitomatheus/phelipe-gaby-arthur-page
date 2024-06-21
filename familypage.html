@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Dedicada a Phelipe, Gaby e Arthur</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        #header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            font-size: 2em;
+        }
+        #main-content {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        #game-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #game {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        #hangman {
+            margin-top: 20px;
+        }
+        #hangman img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        #footer {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        #couple-photo {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        Página Dedicada a Phelipe, Gaby e Arthur
+    </div>
+
+    <div id="main-content">
+        <img id="couple-photo" src="casal.jpg" alt="Phelipe e Gaby">
+        <h2>Phelipe, Gaby e Arthur são incríveis!</h2>
+        <p>Esta página foi criada especialmente para vocês com muito carinho. Espero que gostem!</p>
+
+        <div id="game-container">
+            <h3>Jogo da Forca</h3>
+            <div id="game">
+                <div id="word-display"></div>
+                <div id="letters"></div>
+                <p id="attempts-left">Tentativas restantes: <span id="attempts"></span></p>
+                <div id="hangman">
+                    <img id="hangman-img" src="https://www.w3schools.com/images/tryit_hangman.png" alt="Hangman">
+                </div>
+                <p id="game-over"></p>
+                <p id="hint">Dica: <span id="word-hint">Uma palavra especial!</span></p>
+                <button id="restart-button" style="display: none;" onclick="resetGame()">Reiniciar Jogo</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">
+        &copy; 2024 Página dedicada a Phelipe, Gaby e Arthur
+    </div>
+
+    <script>
+        const words = [
+            { word: 'incríveis', hint: 'Adjetivo que descreve Phelipe, Gaby e Arthur.' },
+            { word: 'família', hint: 'Palavra que representa o vínculo entre Phelipe, Gaby e Arthur.' },
+            { word: 'amor', hint: 'Sentimento que une Phelipe, Gaby e Arthur.' }
+        ];
+        let chosenWord;
+        let hiddenWord;
+        let attemptsLeft;
+        const maxAttempts = 6;
+        const letterButtons = [];
+
+        function startGame() {
+            // Escolher uma palavra aleatória
+            const randomIndex = Math.floor(Math.random() * words.length);
+            chosenWord = words[randomIndex].word.toLowerCase();
+            hiddenWord = '_'.repeat(chosenWord.length);
+            attemptsLeft = maxAttempts;
+
+            // Exibir a palavra escondida inicialmente
+            updateWordDisplay();
+
+            // Exibir botões para escolher letras
+            renderLetterButtons();
+
+            // Exibir número de tentativas restantes
+            updateAttemptsText();
+
+            // Exibir dica da palavra
+            document.getElementById('word-hint').textContent = words[randomIndex].hint;
+
+            // Reiniciar a imagem da forca
+            document.getElementById('hangman-img').src = `https://www.w3schools.com/images/tryit_hangman.png`;
+
+            // Esconder a mensagem de jogo encerrado e botão de reiniciar
+            document.getElementById('game-over').textContent = '';
+            document.getElementById('restart-button').style.display = 'none';
+        }
+
+        function updateWordDisplay() {
+            document.getElementById('word-display').textContent = hiddenWord.split('').join(' ');
+        }
+
+        function renderLetterButtons() {
+            const lettersContainer = document.getElementById('letters');
+            lettersContainer.innerHTML = '';
+
+            const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+            for (let letter of alphabet) {
+                const button = document.createElement('button');
+                button.textContent = letter;
+                button.className = 'letter-button';
+                button.onclick = function() {
+                    checkLetter(letter);
+                };
+                lettersContainer.appendChild(button);
+                letterButtons.push(button);
+            }
+        }
+
+        function checkLetter(letter) {
+            if (attemptsLeft > 0 && hiddenWord !== chosenWord) {
+                let letterFound = false;
+
+                for (let i = 0; i < chosenWord.length; i++) {
+                    if (chosenWord[i] === letter && hiddenWord[i] === '_') {
+                        hiddenWord = hiddenWord.substr(0, i) + letter + hiddenWord.substr(i + 1);
+                        letterFound = true;
+                    }
+                }
+
+                if (!letterFound) {
+                    attemptsLeft--;
+                    updateHangmanImage();
+                }
+
+                updateWordDisplay();
+                updateAttemptsText();
+
+                if (hiddenWord === chosenWord) {
+                    endGame(true);
+                } else if (attemptsLeft === 0) {
+                    endGame(false);
+                }
+            }
+        }
+
+        function updateAttemptsText() {
+            document.getElementById('attempts').textContent = attemptsLeft;
+        }
+
+        function updateHangmanImage() {
+            const hangmanImg = document.getElementById('hangman-img');
+            hangmanImg.src = `https://www.w3schools.com/images/tryit_hangman${maxAttempts - attemptsLeft}.png`;
+        }
+
+        function endGame(win) {
+            for (let button of letterButtons) {
+                button.disabled = true;
+            }
+
+            if (win) {
+                document.getElementById('game-over').textContent = 'Parabéns! Você venceu!';
+            } else {
+                document.getElementById('game-over').textContent = `Game Over! A palavra era "${chosenWord}".`;
+            }
+
+            document.getElementById('restart-button').style.display = 'block';
+        }
+
+        function resetGame() {
+            chosenWord = '';
+            hiddenWord = '';
+            attemptsLeft = 0;
+            letterButtons.length = 0;
+
+            startGame();
+        }
+
+        // Iniciar o jogo quando a página carrega
+        window.onload = startGame;
+    </script>
+</body>
+</html>
